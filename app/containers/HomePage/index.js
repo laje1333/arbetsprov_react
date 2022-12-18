@@ -108,8 +108,10 @@ export const HomePage = () => {
             ),
           ];
           const retVal = [];
+          let prevPrice = null;
+          let index = 0;
           // eslint-disable-next-line no-loop-func
-          timeline.forEach((date, index) => {
+          for (const date of timeline) {
             const pricesForDate = filtered
               .filter(
                 x =>
@@ -118,17 +120,23 @@ export const HomePage = () => {
               )
               .sort((a, b) => a.UnitPrice - b.UnitPrice);
             const temp = { ...pricesForDate[0] };
+
             temp.UnitPrice = parseFloat(temp.UnitPrice).toFixed(2);
-            if (pricesForDate.length > 0) {
-              temp.ValidFrom = date;
-              retVal.push(temp);
-            }
+
             if (index > 0) {
               retVal[index - 1].ValidUntil = maxDate.isSame(date, 'day')
                 ? null
                 : date;
             }
-          });
+
+            if (pricesForDate.length > 0 && temp.UnitPrice !== prevPrice) {
+              prevPrice = temp.UnitPrice;
+              temp.ValidFrom = date;
+              prevPrice = temp.UnitPrice;
+              index += 1;
+              retVal.push(temp);
+            }
+          }
           data.push(retVal);
         }
       }
